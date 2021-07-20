@@ -1,0 +1,35 @@
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV as grid
+from sklearn.model_selection import train_test_split
+
+DATASET_PATH='./creditcard.csv'
+PREPARED_DATASET_PATH='./creditcard_upd.csv'
+df=pd.read_csv(DATASET_PATH, sep=',')
+df.head(10)
+columns=list(df)
+#feature_names=df["feature_names"]
+key = df.keys()
+#print(feature_names)
+for i in key:
+    print(i, df[i].value_counts(normalize=True))
+
+print(df.info())
+
+pd.options.display.max_columns = 100
+
+parameters = [{'n_estimators': [10, 15],
+'max_features': np.arange(3, 5),
+'max_depth': np.arange(4, 7)}]
+
+model=grid(estimator=RandomForestClassifier(random_state=100), param_grid=parameters, scoring='roc_auc', cv=3)
+trained_model=model.fit(X_train, y_train)
+
+print(model.best_params_)
+
+prediction=trained_model.predict_proba(X_test)
+y_pred_proba=prediction[:, 1]
+from sklearn.metrics import roc_auc_score
+
+roc_auc_score(y_test, y_pred_proba)
