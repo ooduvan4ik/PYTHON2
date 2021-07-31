@@ -1,0 +1,110 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import sklearn
+from sklearn.datasets import load_boston 
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.manifold import TSNE
+
+boston = load_boston()
+feature_names = boston["feature_names"]
+data = boston["data"]
+target = boston["target"]
+data.shape
+print(type(boston))
+
+X = pd.DataFrame(data, columns=feature_names)
+X.head(10)
+
+y = pd.DataFrame(target, columns=["price"])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train.shape, X_test.shape, y_train.shape, y_test.shape
+
+scaler = StandardScaler()
+print(feature_names)
+cols_for_scaling=[]
+print(scaler.fit(data))
+print(scaler.mean_)
+print(scaler.transform(data))
+
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.fit_transform(X_test)
+
+X_train_scaled.shape, X_test_scaled.shape
+
+tsne_model=TSNE(n_components=2, random_state=42, learning_rate=250)
+tsne_data=tsne_model.fit_transform(X_train_scaled)
+plt.scatter(tsne_data[:,0], tsne_data[:,1])
+
+plt.title('Train data')
+plt.xlabel("Вес признака")
+plt.ylabel("Признак")
+plt.show()
+
+
+#######################################################################################################
+#2
+from sklearn.cluster import KMeans
+cluster_model = KMeans(n_clusters=3, max_iter=100, random_state=42)
+
+cluster_data=cluster_model.fit_transform(X_train_scaled)
+centers = scaler.inverse_transform(cluster_model.cluster_centers_)
+train_labels = cluster_model.fit_predict(X_train_scaled)
+
+plt.scatter(tsne_data[:,0], tsne_data[:,1], c=train_labels)
+plt.scatter(centers[:, 0], centers[:, 1], marker='D', color='red')
+
+plt.title('Train data')
+plt.xlabel("Вес признака")
+plt.ylabel("Признак")
+plt.show()
+
+price_0=y_train.loc[train_labels==0].mean()
+price_1=y_train.loc[train_labels==1].mean()
+price_2=y_train.loc[train_labels==2].mean()
+
+print(price_0 )
+print(price_1 )
+print(price_2 )
+
+CRIM_0=X_train['CRIM'].loc[train_labels==0].mean()
+CRIM_1=X_train['CRIM'].loc[train_labels==1].mean()
+CRIM_2=X_train['CRIM'].loc[train_labels==2].mean()
+
+print(CRIM_0 )
+print(CRIM_1 )
+print(CRIM_2 )
+
+#############################################################
+#3
+
+cluster_data_test=cluster_model.fit_transform(X_test_scaled)
+centers_test = scaler.inverse_transform(cluster_model.cluster_centers_)
+test_labels = cluster_model.fit_predict(X_test_scaled)
+tsne_data_test=tsne_model.fit_transform(X_test_scaled)
+
+plt.scatter(tsne_data_test[:,0], tsne_data_test[:,1], c=test_labels)
+plt.scatter(centers_test[:, 0], centers_test[:, 1], marker='D', color='red')
+
+plt.title('Test data')
+plt.xlabel("Вес признака")
+plt.ylabel("Признак")
+plt.show()
+
+price_0_test=y_test.loc[test_labels==0].mean()
+price_1_test=y_test.loc[test_labels==1].mean()
+price_2_test=y_test.loc[test_labels==2].mean()
+
+print(price_0_test )
+print(price_1_test )
+print(price_2_test )
+
+CRIM_0_test=X_test['CRIM'].loc[test_labels==0].mean()
+CRIM_1_test=X_test['CRIM'].loc[test_labels==1].mean()
+CRIM_2_test=X_test['CRIM'].loc[test_labels==2].mean()
+
+print(CRIM_0_test )
+print(CRIM_1_test )
+print(CRIM_2_test )
