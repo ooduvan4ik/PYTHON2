@@ -1,0 +1,49 @@
+https://colab.research.google.com/drive/1HX1VQwJQwYqjrC4UvT8wznzqgJCLVqRl#scrollTo=9keVxtYYtgJy 
+
+Ниже код на всякий случай:
+
+import numpy as np
+A=np.array([[1,6],[2,8],[3,11],[3,10],[1,7]])
+mean_a = A.mean(axis=0)
+a_centered=A-mean_a
+a_centered_sp=np.dot(a_centered.T[0], a_centered.T[1])
+print(a_centered_sp/(len(A)-1))
+a_centered_sp2=np.cov(A.T)
+print(a_centered_sp2)
+
+-------------------------------------
+
+import pandas as pd
+authors = pd.DataFrame({'author_id':[1,2,3], 'author_name':['Тургенев', 'Чехов', 'Островский']}, columns=['author_id', 'author_name'])
+print(authors)
+
+book = pd.DataFrame({'author_id':[1, 1, 1, 2, 2, 3, 3], 'book_title ':['Отцы и дети', 'Рудин', 'Дворянское гнездо', 'Толстый и тонкий', 'Дама с собачкой', 'Гроза', 'Таланты и поклонники'], 'price':[450, 300, 350, 500, 450, 370, 290]})
+print(book)
+
+authors_price=pd.merge(authors, book, on = 'author_id', how = 'left')
+print(authors_price)
+
+top5 = authors_price.sort_values(by = 'price', ascending=False)
+top5=top5.reset_index(drop=True)
+top5=top5.head(5)
+print(top5)
+
+authors_stat = authors_price.groupby('author_name').agg({'price':['max', 'min', 'mean']})
+authors_stat=authors_stat.rename(columns={'max':'max_price', 'min':'min_price', 'mean':'mean_price'})
+print(authors_stat)
+
+authors_price['book_type'] = ['твердая', 'мягкая', 'мягкая', 'твердая', 'твердая', 'мягкая', 'мягкая']
+print(authors_price)
+
+book_info = pd.pivot_table(authors_price, 
+               columns='book_type',
+               index='author_name',
+               values = 'price'
+            )
+book_info['мягкая']=book_info['мягкая'].fillna(0)
+book_info['твердая']=book_info['твердая'].fillna(0)
+print(book_info)
+
+book_info.to_pickle('book_info')
+book_info2 = pd.read_pickle('book_info')
+book_info==book_info2

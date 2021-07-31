@@ -1,0 +1,49 @@
+#1). Загрузите датасет Wine из встроенных датасетов sklearn.datasets с помощью функции load_wine в переменную data.
+#2). Полученный датасет не является датафреймом. Это структура данных, имеющая ключи аналогично словарю. 
+#Просмотрите тип данных этой структуры данных и создайте список data_keys, содержащий ее ключи.
+#3). Просмотрите данные, описание и названия признаков в датасете. Описание нужно вывести в виде привычного, 
+#аккуратно оформленного текста, без обозначений переноса строки, но с самими переносами и т.д.4). 
+#Сколько классов содержит целевая переменная датасета? Выведите названия классов.
+
+import sklearn.datasets as datasets
+import pandas as pd
+import numpy as np
+wine=datasets.load_wine()
+data=wine["data"]
+print(type(data))
+data_keys=wine.keys()
+feature_names = wine["feature_names"]
+print(data_keys)
+print(feature_names)
+#print(data["DESCR"])
+
+pd.pivot_table(y, index=["Class"], aggfunc=np.count_nonzero)
+
+#5). На основе данных датасета (они содержатся в двумерном массиве Numpy) и названий признаков создайте датафрейм под названием X.
+#6). Выясните размер датафрейма X и установите, имеются ли в нем пропущенные значения. 
+
+X = pd.DataFrame(data, columns=feature_names)
+print(X.head(10))
+data.shape
+
+#ВОПРОС! не знаю, как вывести пропущенные значения
+
+#7). Добавьте в датафрейм поле с классами вин в виде чисел, имеющих тип данных numpy.int64. Название поля - 'target'.
+
+target = wine["target"]
+y = pd.DataFrame(target, columns=["Class"])
+print(y)
+
+#8 Постройте матрицу корреляций для всех полей X. Дайте полученному датафрейму название X_corr.
+X_corr= X.loc[:,feature_names].corr()
+print(X_corr)    
+
+#9). Создайте список high_corr из признаков, корреляция которых с полем target по абсолютному 
+#значению превышает 0.5 (причем, само поле target не должно входить в этот список).
+
+high_corr = X_corr.abs().lt(0.5)
+print(high_corr)
+print(type(high_corr))
+high_corr.loc[high_corr['alcohol']=='TRUE']
+
+#ВОПРОС! не понимаю как отфильтровать значения больit 0.5

@@ -1,0 +1,68 @@
+#1
+
+import numpy as np
+import pandas as pd
+import matplotlib as plt
+from sklearn.datasets import load_boston
+from sklearn.metrics import r2_score
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor as rf
+
+boston = load_boston()
+data = boston["data"]
+feature_names = boston["feature_names"]
+
+X = pd.DataFrame(data, columns=feature_names)
+X.head()
+
+target = boston["target"]
+y = pd.DataFrame(target, columns=["price"])
+print(y)
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state =42)
+lr=LinearRegression()
+lr.fit(X_train, y_train)
+y_pred = lr.predict(X_test)
+y_pred.shape
+
+check_test = pd.DataFrame({
+    "y_test": y_test["price"],
+    "y_pred": y_pred.flatten(),
+})
+
+check_test.head(10)
+
+R2=r2_score(y_test, y_pred)
+print(R2) #0.711226005748491
+
+------------------------------------------------------------------------------------------------
+#2
+
+from sklearn.ensemble import RandomForestRegressor 
+model=RandomForestRegressor(n_estimators=100, max_depth =12, random_state =42 )
+model.fit(X_train, y_train.values[:, 0])
+
+y_pred2 = model.predict(X_test)
+
+y_pred2.shape
+
+check_test_rfr = pd.DataFrame({
+    "y_test": y_test["price"],
+    "y_pred2": y_pred2.flatten(),
+})
+
+check_test_rfr.head(10)
+
+R2_2=r2_score(y_test, y_pred2)
+print(R2_2) #0.8713629100115731 - данная модель работает лучше, Коэффициент детерминации больше, т.е. большая часть дисперсии тут объяснена.
+
+#3
+#data_pd = pd.DataFrame(data, columns=feature_names)
+feature_names_pd = list(data_pd.columns)
+importances = pd.DataFrame(model.feature_importances_, feature_names_pd) # не поняла почему тут второй аргумент просто стоит, а в этой же ячейке в 1-й строке - с припиской "columns=" и если поменять - ошибка?
+print(importances.sort_values(by=[0], ascending=False))
+
+
+
